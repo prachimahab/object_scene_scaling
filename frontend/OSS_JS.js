@@ -70,6 +70,14 @@ var totalObjNum = Object.values(sceneDict).length;
 var sceneCats = Object.keys(sceneDict);
 var zoomCats = Object.keys(sceneDict.bathroom);
 
+// practice variables
+var pracTries = 0;
+// make a dict that has a list of scenes and objects --> randomly pair together 
+// all outdoor scenes 
+// objects (fridge, bed, pinecone, apple, butterfly, chair)
+// 5/6 correct to continue 
+var pracConds = {}
+
 // timing variables
 var presTime = 2000;
 
@@ -162,6 +170,17 @@ function prepareForFirstTrial(){
 
 	startExpTime = new Date;
 	trialNum = 0;
+}
+
+function prepareForPracticeTrial(){
+	// get trial info, including category, condition, objects, and target
+
+	[sceneCat, zoom, match] = getConds();
+	thisTrialScene = chooseSetScene(sceneCat, zoom);
+	thisTrialObj = chooseSetObject(sceneCat,match);
+
+	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
+	key = "none"; //"resetting" key press from previous trial, doesn't change if no button is pressed
 }
 
 function prepareForTrial(){
@@ -305,17 +324,30 @@ function startExp() {
 function runTrial(){
  	// run one trial --> recursive function (calls itself inside itself until some condition is met)
 
-	prepareForTrial(); // get trial info, including category, condition, objects, and target, and set stimuli
+	if (thisBlockNum == 0){
+		// set timeouts for presentation
+		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
+			showSceneObject();
+			detectKeyPress(trialOver);
+		}, fixTime);
+		var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+			nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		}, fixTime + presTime);
 
-	// set timeouts for presentation
-	var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
-		showSceneObject();
-		detectKeyPress(trialOver);
-	}, fixTime);
-	var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
-		nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
-	}, fixTime + presTime);
+	}
+	else{
+		prepareForTrial(); // get trial info, including category, condition, objects, and target, and set stimuli
 
+		// set timeouts for presentation
+		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
+			showSceneObject();
+			detectKeyPress(trialOver);
+		}, fixTime);
+		var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+			nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		}, fixTime + presTime);
+
+	}
 	// showInstructions(); //show either redo practice or experiment instructions, based on block number
 }
 
