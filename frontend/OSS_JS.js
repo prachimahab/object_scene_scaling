@@ -13,6 +13,7 @@ var thisData = {
 	"screenHeight":[],
 	"startDate":[],
 	"startTime":[],
+	"pracTries":[],
 	"trialNum":[],
 	"sceneCategory":[],
 	"objectCategory":[],
@@ -76,9 +77,15 @@ var pracTries = 0;
 // all outdoor scenes 
 // objects (fridge, bed, pinecone, apple, butterfly, chair)
 // 5/6 correct to continue 
-var pracConds = {}
+var practice_scenes = ["p0.png","p1.png","p2.png","p3.png","p4.png","p5.png"]
+var practice_objDict = {
+	"outside":["b_hairbrush.png", "b_hairdryer.png", "b_plunger.png", "b_soap.png", "b_toiletpaper.png", "b_toothpaste.png"],
+	"inside":["c_computer.png", "c_eraser.png", "c_mouse.png", "c_notebook.png", "c_backpack.png", "c_scissors.png"]};
 
-// timing variables
+var pracTotalTrials = practice_scenes.length
+
+
+	// timing variables
 var presTime = 2000;
 
 // accuracy variables
@@ -173,11 +180,37 @@ function prepareForFirstTrial(){
 }
 
 function prepareForPracticeTrial(){
-	// get trial info, including category, condition, objects, and target
+	// get rid of instructions page and show experiment box
 
-	[sceneCat, zoom, match] = getConds();
-	thisTrialScene = chooseSetScene(sceneCat, zoom);
-	thisTrialObj = chooseSetObject(sceneCat,match);
+	$(".instructions").hide();
+	$(".buttonDiv").hide();
+	$("#experimentBox").show();
+
+	numCorr = 0; //reset number correct for next block
+	prevAcc = 1; //reset accuracy for next block so fixation is neutral and 400ms
+
+	// randomly select a practice scene from the list of paths
+	thisTrialScene = shuffle(practice_scenes)[0];
+	// randomly select whether the object will be from the incongruent or congruent list 
+	thisTrialObjCat = shuffle(Object.keys(practice_objDict))[0];
+
+	if (thisTrialObjCat=="outside"){
+		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
+		var thisTrialObj = theseTrialObjs.pop();
+		$("#objectImage").attr("src","stimuli/" + "outside" + "/objects/" + thisTrialObj);
+		
+		console.log(theseTrialObjs);
+		console.log(thisTrialObj);
+
+	}
+	else{
+		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
+		var thisTrialObj = theseTrialObjs.pop();
+		$("#objectImage").attr("src","stimuli/" + "inside" + "/objects/" + thisTrialObj);
+		
+		console.log(theseTrialObjs);
+		console.log(thisTrialObj);
+	}
 
 	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
 	key = "none"; //"resetting" key press from previous trial, doesn't change if no button is pressed
@@ -314,6 +347,13 @@ function hideSceneObject(){
 // experiment functions
 // --------------------
 
+function startPractice(){
+	// start practice trials, on keypress 
+
+	prepareForPracticeTrial();
+	runTrial();
+}
+
 function startExp() {
 	// start running one block, onkeypress for button div
 
@@ -324,7 +364,19 @@ function startExp() {
 function runTrial(){
  	// run one trial --> recursive function (calls itself inside itself until some condition is met)
 
-	if (thisBlockNum == 0){
+	 if (thisBlockNum == 0){
+		// set timeouts for presentation
+		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
+			showSceneObject();
+			detectKeyPress(trialOver);
+		}, fixTime);
+		var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+			nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		}, fixTime + presTime);
+
+	}
+
+	if (thisBlockNum == 1){
 		// set timeouts for presentation
 		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
 			showSceneObject();
@@ -383,7 +435,7 @@ function nextTrial(){ //requires input variable because it is not a global varia
 	else if (keyDict[key] != match){
 		prevAcc = 0;
 	}
-
+	blockAcc = numCorr/(trialInBlockNum + 1); //update block accuracy before adding 1 to trial in block number
 	endTrialTime = new Date;
 	RT = endTrialTime - startTrialTime;
 
