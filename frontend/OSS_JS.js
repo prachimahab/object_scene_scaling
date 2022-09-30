@@ -35,7 +35,7 @@ var startDate = start.getMonth() + "-" + start.getDate() + "-" + start.getFullYe
 var startTime = start.getHours() + "-" + start.getMinutes() + "-" + start.getSeconds();
 
 // initialize empty variables
-var endExpTime, startExpTime, RT, key, fixTime, startTrialTime, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match;
+var endExpTime, startExpTime, RT, key, fixTime, startTrialTime, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match, practice_scenes, practice_objDict;
 
 
 var sceneDict = {
@@ -73,24 +73,26 @@ var zoomCats = Object.keys(sceneDict.bathroom);
 
 // practice variables
 var pracTries = 0;
+var pracTrialNum = 0;
 // make a dict that has a list of scenes and objects --> randomly pair together 
 // all outdoor scenes 
 // objects (fridge, bed, pinecone, apple, butterfly, chair)
 // 5/6 correct to continue 
-var practice_scenes = ["p0.png","p1.png","p2.png","p3.png","p4.png","p5.png"]
-var practice_objDict = {
-	"outside":["b_hairbrush.png", "b_hairdryer.png", "b_plunger.png", "b_soap.png", "b_toiletpaper.png", "b_toothpaste.png"],
-	"inside":["c_computer.png", "c_eraser.png", "c_mouse.png", "c_notebook.png", "c_backpack.png", "c_scissors.png"]};
-
-var pracTotalTrials = practice_scenes.length
+var pracTotalTrials = 6
 
 
-	// timing variables
+
+
+// block var
+var thisBlockNum = 0;
+
+// timing variables
 var presTime = 2000;
 
 // accuracy variables
 var prevAcc = 1;
 var trialNum = 0;
+var trialInBlockNum = 0;
 
 // key info
 var keyDict = {"c": 1, "m": 0, "none": "none"}
@@ -179,25 +181,41 @@ function prepareForFirstTrial(){
 	trialNum = 0;
 }
 
-function prepareForPracticeTrial(){
+function prepareForFirstPracticeTrial(){
 	// get rid of instructions page and show experiment box
 
 	$(".instructions").hide();
 	$(".buttonDiv").hide();
 	$("#experimentBox").show();
 
+	practice_scenes = ["p0.png","p1.png","p2.png","p3.png","p4.png","p5.png"]
+	practice_objDict = {
+		"outside":["apple.png", "butterfly.png", "pinecone.png"],
+		"inside":["bed.png", "chair.png", "fridge.png"]};
+	pracTrialNum = 0
+
 	numCorr = 0; //reset number correct for next block
 	prevAcc = 1; //reset accuracy for next block so fixation is neutral and 400ms
+	}
 
+function prepareForPracticeTrial(){
 	// randomly select a practice scene from the list of paths
-	thisTrialScene = shuffle(practice_scenes)[0];
+	var thisTrialScene = practice_scenes.pop(shuffle(practice_scenes)[0]);
+	$("#sceneImage").attr("src","stimuli/practice/scenes/" + thisTrialScene);
+
+
 	// randomly select whether the object will be from the incongruent or congruent list 
 	thisTrialObjCat = shuffle(Object.keys(practice_objDict))[0];
+	if (practice_objDict[thisTrialObjCat].length == 0){
+		thisTrialObjCat = Object.keys(practice_objDict)[1]
+	}
 
 	if (thisTrialObjCat=="outside"){
 		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
 		var thisTrialObj = theseTrialObjs.pop();
-		$("#objectImage").attr("src","stimuli/" + "outside" + "/objects/" + thisTrialObj);
+		$("#objectImage").attr("src","stimuli/practice/outside/" + thisTrialObj);
+
+		var match = 1
 		
 		console.log(theseTrialObjs);
 		console.log(thisTrialObj);
@@ -206,10 +224,10 @@ function prepareForPracticeTrial(){
 	else{
 		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
 		var thisTrialObj = theseTrialObjs.pop();
-		$("#objectImage").attr("src","stimuli/" + "inside" + "/objects/" + thisTrialObj);
+		$("#objectImage").attr("src","stimuli/practice/inside/" + thisTrialObj);
+
+		var match = 0
 		
-		console.log(theseTrialObjs);
-		console.log(thisTrialObj);
 	}
 
 	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
@@ -347,24 +365,32 @@ function hideSceneObject(){
 // experiment functions
 // --------------------
 
-function startPractice(){
-	// start practice trials, on keypress 
-
-	prepareForPracticeTrial();
-	runTrial();
-}
-
-function startExp() {
+function startBlock(thisBlockNum) {
 	// start running one block, onkeypress for button div
 
-	prepareForFirstTrial(); //get rid of instructions page and show experiment box
-	runTrial(); //starts trial presentation, recursive function
+	if(thisBlockNum==0){
+		prepareForFirstPracticeTrial(); 
+		runTrial();
+	}
+	else{
+		prepareForFirstTrial(); //get rid of instructions page and show experiment box
+		runTrial(); //starts trial presentation, recursive function
+
+	}
 }
+
+// function startExp() {
+// 	// start running one block, onkeypress for button div
+
+// 	prepareForFirstTrial(); //get rid of instructions page and show experiment box
+// 	runTrial(); //starts trial presentation, recursive function
+// }
 
 function runTrial(){
  	// run one trial --> recursive function (calls itself inside itself until some condition is met)
 
 	 if (thisBlockNum == 0){
+		prepareForPracticeTrial();
 		// set timeouts for presentation
 		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
 			showSceneObject();
@@ -376,17 +402,7 @@ function runTrial(){
 
 	}
 
-	if (thisBlockNum == 1){
-		// set timeouts for presentation
-		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
-			showSceneObject();
-			detectKeyPress(trialOver);
-		}, fixTime);
-		var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
-			nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
-		}, fixTime + presTime);
-
-	}
+	// }
 	else{
 		prepareForTrial(); // get trial info, including category, condition, objects, and target, and set stimuli
 
@@ -435,20 +451,35 @@ function nextTrial(){ //requires input variable because it is not a global varia
 	else if (keyDict[key] != match){
 		prevAcc = 0;
 	}
-	blockAcc = numCorr/(trialInBlockNum + 1); //update block accuracy before adding 1 to trial in block number
+	var prac_blockAcc = numCorr/pracTotalTrials; //update block accuracy before adding 1 to trial in block number
 	endTrialTime = new Date;
 	RT = endTrialTime - startTrialTime;
 
-	// save data from this trial
-	saveTrialData();
+	if (thisBlockNum == 0){ //if practice block
+		pracTrialNum ++ 
+		if (pracTrialNum >= 6){
+			if (prac_blockAcc > .8){ //if task is understood
+				thisBlockNum++; //move onto experiment
+				
+			}
+			else { //if task isn't understood
+				pracTries++; //note that practice has been repeated	
+			}
+			showInstructions();
+		
+		}
+		else{
+			runTrial(); //re-run function
+		}
+	}
 
-	// move onto next trial if there are more
-	// if (trialNum<24){
-	trialNum++; //increase total trial number
-	runTrial(); //re-run function
-	// }
-	// trialNum++; //increase total trial number
-	// runTrial(); //re-run function
+	if (thisBlockNum != 0){
+		runTrial(); //re-run function
+		// save data from this trial
+		saveTrialData();
+		trialNum ++ 
+	}
+
 }
 
 function endExperiment(){
