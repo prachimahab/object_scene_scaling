@@ -7,8 +7,8 @@
 	header("Access-Control-Allow-Methods: PUT, POST, GET, OPTIONS, DELETE");
 
 	// set variables, either explicitly or post variables from form inputs
-	$experimentName = "ApplesAndOranges";
-	$versionName = "bwObjects";
+	$experimentName = "OSS";
+	$versionName = "v1";
 	$dataURL = "/var/www/html/{$experimentName}/{$versionName}/data"; //this needs to be the location on the SERVER, not on the IP address
 	$startDate = $_POST["startDate"];
 	$startTime = $_POST["startTime"];

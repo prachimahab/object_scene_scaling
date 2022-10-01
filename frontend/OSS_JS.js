@@ -35,7 +35,7 @@ var startDate = start.getMonth() + "-" + start.getDate() + "-" + start.getFullYe
 var startTime = start.getHours() + "-" + start.getMinutes() + "-" + start.getSeconds();
 
 // initialize empty variables
-var endExpTime, startExpTime, RT, key, fixTime, startTrialTime, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match, practice_scenes, practice_objDict;
+var endExpTime, startExpTime, RT, key, fixTime, startTrialTime, thisTrialObj, thisTrialScene, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match, practice_scenes, practice_objDict;
 
 
 var sceneDict = {
@@ -80,11 +80,9 @@ var pracTrialNum = 0;
 // 5/6 correct to continue 
 var pracTotalTrials = 6
 
-
-
-
 // block var
 var thisBlockNum = 0;
+var totalTrials = 24
 
 // timing variables
 var presTime = 2000;
@@ -95,6 +93,7 @@ var trialNum = 0;
 var trialInBlockNum = 0;
 
 // key info
+// c = category match; m = category mis-match
 var keyDict = {"c": 1, "m": 0, "none": "none"}
 
 // ----------------
@@ -113,7 +112,7 @@ $(document).ready(function(){
 
 	preloadStimuli();
 
-	$("#startExperimentButton").show();
+	$("#startPracticeButton").show();
 
 });
 
@@ -178,7 +177,7 @@ function prepareForFirstTrial(){
 	prevAcc = 1; //reset accuracy for next block so fixation is neutral and 400ms
 
 	startExpTime = new Date;
-	trialNum = 0;
+	var trialNum = 0;
 }
 
 function prepareForFirstPracticeTrial(){
@@ -192,6 +191,7 @@ function prepareForFirstPracticeTrial(){
 	practice_objDict = {
 		"outside":["apple.png", "butterfly.png", "pinecone.png"],
 		"inside":["bed.png", "chair.png", "fridge.png"]};
+	console.log(practice_objDict)
 	pracTrialNum = 0
 
 	numCorr = 0; //reset number correct for next block
@@ -206,8 +206,11 @@ function prepareForPracticeTrial(){
 
 	// randomly select whether the object will be from the incongruent or congruent list 
 	thisTrialObjCat = shuffle(Object.keys(practice_objDict))[0];
+	// if the list of objects of a particular category have all been sampled remove that key from the dict
+	// then select the remaining one 
 	if (practice_objDict[thisTrialObjCat].length == 0){
-		thisTrialObjCat = Object.keys(practice_objDict)[1]
+		delete practice_objDict[thisTrialObjCat]
+		thisTrialObjCat = Object.keys(practice_objDict)[0]
 	}
 
 	if (thisTrialObjCat=="outside"){
@@ -215,18 +218,16 @@ function prepareForPracticeTrial(){
 		var thisTrialObj = theseTrialObjs.pop();
 		$("#objectImage").attr("src","stimuli/practice/outside/" + thisTrialObj);
 
-		var match = 1
-		
-		console.log(theseTrialObjs);
-		console.log(thisTrialObj);
 
+		match = 1
 	}
 	else{
 		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
+		console.log(theseTrialObjs)
 		var thisTrialObj = theseTrialObjs.pop();
 		$("#objectImage").attr("src","stimuli/practice/inside/" + thisTrialObj);
-
-		var match = 0
+		console.log(thisTrialObj)
+		match = 0
 		
 	}
 
@@ -238,8 +239,8 @@ function prepareForTrial(){
 	// get trial info, including category, condition, objects, and target
 
 	[sceneCat, zoom, match] = getConds();
-	thisTrialScene = chooseSetScene(sceneCat, zoom);
-	thisTrialObj = chooseSetObject(sceneCat,match);
+	var thisTrialScene = chooseSetScene(sceneCat, zoom);
+	var thisTrialObj = chooseSetObject(sceneCat,match);
 
 	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
 	key = "none"; //"resetting" key press from previous trial, doesn't change if no button is pressed
@@ -379,12 +380,12 @@ function startBlock(thisBlockNum) {
 	}
 }
 
-// function startExp() {
-// 	// start running one block, onkeypress for button div
+function startExp() {
+	// start running one block, onkeypress for button div
 
-// 	prepareForFirstTrial(); //get rid of instructions page and show experiment box
-// 	runTrial(); //starts trial presentation, recursive function
-// }
+	prepareForFirstTrial(); //get rid of instructions page and show experiment box
+	runTrial(); //starts trial presentation, recursive function
+}
 
 function runTrial(){
  	// run one trial --> recursive function (calls itself inside itself until some condition is met)
@@ -402,7 +403,6 @@ function runTrial(){
 
 	}
 
-	// }
 	else{
 		prepareForTrial(); // get trial info, including category, condition, objects, and target, and set stimuli
 
@@ -416,7 +416,6 @@ function runTrial(){
 		}, fixTime + presTime);
 
 	}
-	// showInstructions(); //show either redo practice or experiment instructions, based on block number
 }
 
 function detectKeyPress(trialOver){
@@ -460,7 +459,7 @@ function nextTrial(){ //requires input variable because it is not a global varia
 		if (pracTrialNum >= 6){
 			if (prac_blockAcc > .8){ //if task is understood
 				thisBlockNum++; //move onto experiment
-				
+			
 			}
 			else { //if task isn't understood
 				pracTries++; //note that practice has been repeated	
@@ -474,9 +473,16 @@ function nextTrial(){ //requires input variable because it is not a global varia
 	}
 
 	if (thisBlockNum != 0){
-		runTrial(); //re-run function
-		// save data from this trial
-		saveTrialData();
+		// if the experiment is over 
+		if (trialNum >= 24){
+			thisBlockNum++;
+			showInstructions();
+		}
+		// do not save practice data
+		if (trialNum > 0){
+			saveTrialData();
+			runTrial();
+		}
 		trialNum ++ 
 	}
 
@@ -498,7 +504,7 @@ function saveTrialData(){
 
 	// global variables --> will be repetitive, same value for every row (each row will represent one trial)
 	thisData["subjID"].push(subjID);
-	thisData["experimentName"].push("SemanticSize");
+	thisData["experimentName"].push("OSS");
 	thisData["versionName"].push("v1");
 	thisData["windowWidth"].push($(window).width());
 	thisData["windowHeight"].push($(window).height());
