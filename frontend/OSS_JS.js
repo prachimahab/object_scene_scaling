@@ -35,7 +35,7 @@ var startDate = start.getMonth() + "-" + start.getDate() + "-" + start.getFullYe
 var startTime = start.getHours() + "-" + start.getMinutes() + "-" + start.getSeconds();
 
 // initialize empty variables
-var endExpTime, startExpTime, RT, key, fixTime, startTrialTime, thisTrialObj, thisTrialScene, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match, practice_scenes, practice_objDict;
+var endExpTime, startExpTime, RT, key, fixTime, thisTrialObj, thisTrialScene, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match, practice_scenes, practice_objDict, thisObjCat;
 
 
 var sceneDict = {
@@ -72,7 +72,7 @@ var sceneCats = Object.keys(sceneDict);
 var zoomCats = Object.keys(sceneDict.bathroom);
 
 // practice variables
-var pracTries = 0;
+var pracTries = 1; // everyone does the practice at least once
 var pracTrialNum = 0;
 // make a dict that has a list of scenes and objects --> randomly pair together 
 // all outdoor scenes 
@@ -191,7 +191,6 @@ function prepareForFirstPracticeTrial(){
 	practice_objDict = {
 		"outside":["apple.png", "butterfly.png", "pinecone.png"],
 		"inside":["bed.png", "chair.png", "fridge.png"]};
-	console.log(practice_objDict)
 	pracTrialNum = 0
 
 	numCorr = 0; //reset number correct for next block
@@ -200,7 +199,7 @@ function prepareForFirstPracticeTrial(){
 
 function prepareForPracticeTrial(){
 	// randomly select a practice scene from the list of paths
-	var thisTrialScene = practice_scenes.pop(shuffle(practice_scenes)[0]);
+	thisTrialScene = practice_scenes.pop(shuffle(practice_scenes)[0]);
 	$("#sceneImage").attr("src","stimuli/practice/scenes/" + thisTrialScene);
 
 
@@ -215,7 +214,7 @@ function prepareForPracticeTrial(){
 
 	if (thisTrialObjCat=="outside"){
 		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
-		var thisTrialObj = theseTrialObjs.pop();
+		thisTrialObj = theseTrialObjs.pop();
 		$("#objectImage").attr("src","stimuli/practice/outside/" + thisTrialObj);
 
 
@@ -223,10 +222,8 @@ function prepareForPracticeTrial(){
 	}
 	else{
 		var theseTrialObjs = shuffle(practice_objDict[thisTrialObjCat]);
-		console.log(theseTrialObjs)
-		var thisTrialObj = theseTrialObjs.pop();
+		thisTrialObj = theseTrialObjs.pop();
 		$("#objectImage").attr("src","stimuli/practice/inside/" + thisTrialObj);
-		console.log(thisTrialObj)
 		match = 0
 		
 	}
@@ -239,7 +236,7 @@ function prepareForTrial(){
 	// get trial info, including category, condition, objects, and target
 
 	[sceneCat, zoom, match] = getConds();
-	var thisTrialScene = chooseSetScene(sceneCat, zoom);
+	thisTrialScene = chooseSetScene(sceneCat, zoom);
 	var thisTrialObj = chooseSetObject(sceneCat,match);
 
 	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
@@ -247,13 +244,13 @@ function prepareForTrial(){
 }
 
 function getConds(){
-	var thisTrialSceneCat = shuffle(sceneCats)[0];
+	thisTrialSceneCat = shuffle(sceneCats)[0];
 
-  	var thisTrialZoom = shuffle(Object.keys(condsDict[thisTrialSceneCat]))[0];
+  	thisTrialZoom = shuffle(Object.keys(condsDict[thisTrialSceneCat]))[0];
 
  	if (condsDict[thisTrialSceneCat][thisTrialZoom].length > 0){
 		var theseTrialMatches = shuffle(condsDict[thisTrialSceneCat][thisTrialZoom]);
-      	var thisTrialMatch = theseTrialMatches.pop();
+      	thisTrialMatch = theseTrialMatches.pop();
       	// return [thisTrialSceneCat, thisTrialZoom, thisTrialMatch]
 	}
   	else{
@@ -276,7 +273,7 @@ function getConds(){
 function chooseSetScene(sceneCat,zoom){
     var theseTrialScenes = sceneDict[sceneCat][zoom];
     var thisTrialIndex = randomIntFromInterval(0,(sceneDict[sceneCat][zoom].length-1));
-  	var thisTrialScene = sceneDict[sceneCat][zoom][thisTrialIndex];
+  	thisTrialScene = sceneDict[sceneCat][zoom][thisTrialIndex];
   	$("#sceneImage").attr("src","stimuli/" + sceneCat + "/scenes/" + zoom + "/" + thisTrialScene);
   	var theseZooms = Object.keys(sceneDict[sceneCat]);
   	for (theseZoomNums=0; theseZoomNums<theseZooms.length; theseZoomNums++){
@@ -291,33 +288,30 @@ function chooseSetScene(sceneCat,zoom){
 function chooseSetObject(sceneCat,match){
 	if (match == 1){
 		var theseTrialObjs = shuffle(objDict[sceneCat]);
-		var thisTrialObj = theseTrialObjs.pop();
-		var thisObjCat = sceneCat;
+		thisTrialObj = theseTrialObjs.pop();
+		thisObjCat = sceneCat;
 		$("#objectImage").attr("src","stimuli/" + thisObjCat + "/objects/" + thisTrialObj);
-		
-		console.log(theseTrialObjs);
-		console.log(thisTrialObj);
+
 
 		return thisTrialObj;
 	}
 	else{
 		if (sceneCat=='bathroom'){
-			var thisObjCat = 'kitchen';
+			thisObjCat = 'kitchen';
 		}
 		else if (sceneCat=='kitchen'){
-			var thisObjCat = 'bathroom';
+			thisObjCat = 'bathroom';
 		}
 		else if (sceneCat=='gym'){
-			var thisObjCat = 'classroom';
+			thisObjCat = 'classroom';
 		}
 		else if (sceneCat='classroom'){
-			var thisObjCat = 'gym';
+			thisObjCat = 'gym';
 		}
 		var theseTrialObjs = shuffle(objDict[thisObjCat]);
-		var thisTrialObj = theseTrialObjs.pop();
+		thisTrialObj = theseTrialObjs.pop();
 		$("#objectImage").attr("src","stimuli/" + thisObjCat + "/objects/" + thisTrialObj);
-		console.log(theseTrialObjs);
-		console.log(thisTrialObj);
+
 		
 		return thisTrialObj;
 	}
@@ -343,6 +337,9 @@ function showFixation(){
 
 function showSceneObject(){
 	//show objects, hiding red fixation if necessary
+
+	// beginning point of trial RT 
+	startTrialTime = new Date; 
 
 	// if (prevAcc==0){
 		$(".fixationDiv").hide();
@@ -451,7 +448,7 @@ function nextTrial(){ //requires input variable because it is not a global varia
 		prevAcc = 0;
 	}
 	var prac_blockAcc = numCorr/pracTotalTrials; //update block accuracy before adding 1 to trial in block number
-	endTrialTime = new Date;
+	var endTrialTime = new Date;
 	RT = endTrialTime - startTrialTime;
 
 	if (thisBlockNum == 0){ //if practice block
@@ -463,6 +460,7 @@ function nextTrial(){ //requires input variable because it is not a global varia
 			}
 			else { //if task isn't understood
 				pracTries++; //note that practice has been repeated	
+				saveTrialData();
 			}
 			showInstructions();
 		
@@ -476,14 +474,17 @@ function nextTrial(){ //requires input variable because it is not a global varia
 		// if the experiment is over 
 		if (trialNum >= 24){
 			thisBlockNum++;
+			saveTrialData();
 			showInstructions();
 		}
 		// do not save practice data
-		if (trialNum > 0){
+		else if (trialNum > 0){
 			saveTrialData();
 			runTrial();
 		}
-		trialNum ++ 
+		if (trialNum <24){
+			trialNum ++ 
+		}
 	}
 
 }
@@ -501,7 +502,8 @@ function endExperiment(){
 
 function saveTrialData(){
 	// at the end of each trial, appends values to data dictionary
-
+	console.log(trialNum)
+	console.log(RT, 'RT')
 	// global variables --> will be repetitive, same value for every row (each row will represent one trial)
 	thisData["subjID"].push(subjID);
 	thisData["experimentName"].push("OSS");
@@ -512,11 +514,12 @@ function saveTrialData(){
 	thisData["screenHeight"].push(screen.height);
 	thisData["startDate"].push(startDate);
 	thisData["startTime"].push(startTime);
+	thisData["pracTries"].push(pracTries);
 
 	// trial-by-trial variables, changes each time this function is called
 	thisData["trialNum"].push(trialNum);
 	thisData["sceneCategory"].push(thisTrialSceneCat);
-	thisData["objectCategory"].push();
+	thisData["objectCategory"].push(thisObjCat);
 	thisData["sceneImage"].push(thisTrialScene);
 	thisData["objectImage"].push(thisTrialObj);
 	thisData["semanticMatch"].push(thisTrialMatch);
@@ -524,6 +527,11 @@ function saveTrialData(){
 	thisData["keyPress"].push(key);
 	thisData["accuracy"].push(prevAcc);
 	thisData["RT"].push(RT);
+
+	// use to debug if there is an offest in the php saving 
+	// for (var key in thisData){
+	// 	console.log(key, thisData[key].length)
+	// }
 }
 
 function saveAllData() {
@@ -538,6 +546,8 @@ function saveAllData() {
 	// change values for input divs to pass to php
 	$("#experimentData").val(JSON.stringify(thisData));
 	$("#completedTrialsNum").val(trialNum); //how many trials this participant completed
+
+
 
 	sendToServer();
 }

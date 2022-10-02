@@ -9,7 +9,7 @@
 	// set variables, either explicitly or post variables from form inputs
 	$experimentName = "OSS";
 	$versionName = "v1";
-	$dataURL = "/var/www/html/{$experimentName}/{$versionName}/data"; //this needs to be the location on the SERVER, not on the IP address
+	$dataURL = "/var/www/html/FacialAge/OSS_MTurk/data"; //this needs to be the location on the SERVER, not on the IP address
 	$startDate = $_POST["startDate"];
 	$startTime = $_POST["startTime"];
 	$subjID = $_POST["subjID"];
