@@ -105,7 +105,10 @@ $(document).ready(function(){
 
 	$("#startingInstructions").append( //have to append here instead of setting in html because variables are included
 		"<p>Thank you for your participation in this experiment. Please read the instructions very carefully.</p>"
-		+ "<p>INSERT INSTRUCTIONS HERE</p>");
+		+ "<p>You will be seeing different objects on top of different scenes. Your task is to indicate whether the object belongs in the scene. For example, if you saw a shirt on top of a scene of a closet, you would indicate that the shirt belongs to the scene.</p>"
+		+ "<p>If the object belongs to the scene, press the \"c\" key on your keyboard. If the object does not belong to the scene, press the \"m\" key on your keyboard.</p>"
+		+ "<p>When you answer incorrectly, the fixation cross will turn red ("+"<font color=red>+</font>"+"). Try to slow down if you see you are getting many wrong!</p>"
+		+ "<br><p>When you are ready to begin the practice section, click the button below.</p>");
 	document.getElementById("subjID").value = subjID;
 	document.getElementById("startDate").value = startDate;
 	document.getElementById("startTime").value = startTime;
