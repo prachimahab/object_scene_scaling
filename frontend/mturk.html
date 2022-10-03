@@ -2,9 +2,11 @@
 <section class="container" id="SurveyLink">
 <div class="row">
 <div class="col-xs-12 col-md-12">
-<div class="panel panel-primary"><p class="panel-heading"><strong>Instructions</strong></p>
+<div class="panel panel-primary">
+<p class="panel-heading"><strong>Instructions</strong></p>
+
 <div class="panel-body">
-<p>${instructions} Select the link below to begin the experiment. At the end of the experiment, you will receive a code to paste into the box below to receive credit for completing this experiment.</p>
+<p>Select the link below to begin the experiment. At the end of the experiment, you will receive a code to paste into the box below to receive credit for completing this experiment.</p>
 
 <p><strong>Make sure to leave this window open as you complete the experiment. </strong> When you are finished, you will return to this page to paste the code into the box.</p>
 </div>
@@ -13,40 +15,35 @@
 </div>
 
 <div>
-  <p class="consentButtons"> Please read the Consent Statement below and select one:</p>
-  <label class="consentButtons"><input id="consentYes" name="consentCheck" type="radio" required="required"/>  I have read the Consent Statement and agree to participate in this research study.</label>
-  <br>
-  <label class="consentButtons"><input id="consentNo" name="consentCheck" type="radio" required="required"/>  I have read the Consent Statement and DO NOT agree to participate in this research study. I will forfeit my participation.</label>
-  <input class="consentButtons" id="consentValue" type=hidden>
-</div>
-<div class="btn btn-primary" id="showLinkSubmit" onclick="showLink()"/> Continue
-</div>
-<div class="consent"><img id="consentPNG" src="http://${ipAddress}/FacialAge/OSS_MTurk/consent.png" /> 
-</div>
+<p class="consentButtons">Please read the Consent Statement linked below and select one:</p>
 
-<div id="forfeited">
-You have forfeited your participation in this experiment. Please exit this page.
-</div>
+<div id="consentPNG"><a href="http://54.235.29.9/FacialAge/OSS_MTurk/consent.png" target="_blank">Click to open Consent Statement</a></div>
+<br />
+<label class="consentButtons"><input id="consentYes" name="consentCheck" required="required" type="radio" /> I have read the Consent Statement and agree to participate in this research study.</label><br />
+<label class="consentButtons"><input id="consentNo" name="consentCheck" required="required" type="radio" /> I have read the Consent Statement and DO NOT agree to participate in this research study. I will forfeit my participation.</label> <input class="consentButtons" id="consentValue" type="hidden" /></div>
+
+<div class="btn btn-primary" id="showLinkSubmit" onclick="showLink()">Continue</div>
+
+<div id="forfeited">You have forfeited your participation in this experiment. Please exit this page.</div>
+
 <div class="row" id="workContent">
 <div class="col-xs-12 col-md-6 col-md-offset-3">
 <table class="table table-condensed table-bordered">
-  <colgroup>
-    <col class="col-xs-4 col-md-4" />
-    <col class="col-xs-8 col-md-8" />
-  </colgroup>
-  <tbody>
-    <tr>
-      <td><label>Survey link:</label></td>
-      <td><a href="${experiment_url}" target="_blank">Click here to go to the experiment.</a></td>
-    </tr>
-  </tbody>
+	<colgroup>
+		<col class="col-xs-4 col-md-4" />
+		<col class="col-xs-8 col-md-8" />
+	</colgroup>
+	<tbody>
+		<tr>
+			<td><label>Survey link:</label></td>
+			<td><a href="http://54.235.29.9/FacialAge/OSS_MTurk/OSS_HTML.html" target="_blank">Click here to go to the experiment.</a></td>
+		</tr>
+	</tbody>
 </table>
 
 <div class="form-group"><label for="surveycode">Provide the survey code here:</label> <input class="form-control" id="surveycode" name="surveycode" placeholder="e.g. 123456" required="" type="text" /></div>
 </div>
 </div>
-
-
 </section>
 <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" integrity="sha384-IS73LIqjtYesmURkDE9MXKbXqYA8rvKEp/ghicjem7Vc3mGRdQRptJSz60tvrB6+" rel="stylesheet" />
 <style type="text/css">#collapseTrigger{
@@ -94,8 +91,7 @@ You have forfeited your participation in this experiment. Please exit this page.
   hyphens: auto;
 }
 </style>
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js" integrity="sha384-s1ITto93iSMDxlp/79qhWHi+LsIi9Gx6yL+cOKDuymvihkfol83TYbLbOw+W/wv4" crossorigin="anonymous"></script>
-<script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js" integrity="sha384-s1ITto93iSMDxlp/79qhWHi+LsIi9Gx6yL+cOKDuymvihkfol83TYbLbOw+W/wv4" crossorigin="anonymous"></script><script>
 
 function showLink(){
     if ($("#consentYes").is(":checked")) {
