@@ -328,11 +328,11 @@ function showFixation(){
 	// show fixation based on previous accuracy
 
 	if (prevAcc==0){
-		fixTime = 800;
+		fixTime = 2000;
 		$("#fixationRed").show();
 	}
 	if (prevAcc==1){
-		fixTime = 400;
+		fixTime = 1500;
 		$("#fixationNeutral").show();
 	}
 
@@ -464,7 +464,7 @@ function nextTrial(){ //requires input variable because it is not a global varia
 			}
 			else { //if task isn't understood
 				pracTries++; //note that practice has been repeated	
-				saveTrialData();
+				// saveTrialData();
 			}
 			showInstructions();
 		
