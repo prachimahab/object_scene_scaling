@@ -37,7 +37,7 @@
 			<a href="#" id="redoPracticeText" onclick="startBlock(thisBlockNum)">Redo Practice</a>
 		</div>
 		<div id="startExperimentButton" class="buttonDiv">
-			<a href="#" id="startExperimentText" onclick="startExp()">Start Experiment</a>
+			<a href="#" id="startExperimentText" onclick="startBlock(thisBlockNum)">Start Experiment</a>
 		</div>
 		<div id="revealCodeButton" class="buttonDiv">
 			<a href="#" id="revealCodeText" type onclick="endExperiment()">Reveal Code</a>
@@ -59,6 +59,9 @@
 			<div id="object" class="objectDiv">
 				<img id="objectImage" src="" width=150>
 			</div>
+			<div id="mask" class="maskDiv">
+				<img id="maskImage" src="" width=900>
+			</div>
 
 			<!-- fixations -->
 			<div id="fixationNeutral" class="fixationDiv">
@@ -66,6 +69,9 @@
 			</div>
 			<div id="fixationRed" class="fixationDiv">
 				<img src="fixations/WrongFixation.png" width=20>
+			</div>
+			<div id="fixationGreen" class="fixationDiv">
+				<img src="fixations/GoFixation.png" width=20>
 			</div>
 		</div>
 	</body>

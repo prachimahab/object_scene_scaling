@@ -8,7 +8,7 @@
 
 	// set variables, either explicitly or post variables from form inputs
 	$experimentName = "OSS";
-	$versionName = "v1";
+	$versionName = "v2";
 	$dataURL = "/var/www/html/FacialAge/OSS_MTurk/data"; //this needs to be the location on the SERVER, not on the IP address
 	$startDate = $_POST["startDate"];
 	$startTime = $_POST["startTime"];

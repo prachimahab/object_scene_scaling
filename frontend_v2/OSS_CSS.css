@@ -82,6 +82,13 @@ body {
 	/*width: 0px;*/
 }
 
+.maskDiv {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	display: none;
+}
+
 .circleDiv {
 	position: absolute;
 	top: 175px;

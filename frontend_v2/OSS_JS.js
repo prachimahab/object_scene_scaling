@@ -37,6 +37,10 @@ var startTime = start.getHours() + "-" + start.getMinutes() + "-" + start.getSec
 // initialize empty variables
 var endExpTime, startExpTime, RT, key, fixTime, thisTrialObj, thisTrialScene, thisTrialSceneCat, thisTrialMatch, thisTrialZoom, zoom, match, practice_scenes, practice_objDict, thisObjCat;
 
+var maskArray = ["mask_0.jpg", "mask_1.jpg", "mask_2.jpg", "mask_3.jpg", "mask_4.jpg", "mask_5.jpg", "mask_6.jpg",
+								"mask_7.jpg", "mask_8.jpg", "mask_9.jpg", "mask_10.jpg", "mask_11.jpg", "mask_12.jpg", "mask_13.jpg",
+								"mask_14.jpg", "mask_15.jpg", "mask_16.jpg", "mask_17.jpg", "mask_18.jpg", "mask_19.jpg", "mask_20.jpg",
+								"mask_21.jpg", "mask_22.jpg", "mask_23.jpg"];
 
 var sceneDict = {
 	"bathroom":{"zi":["b0_zi.png","b1_zi.png","b2_zi.png","b3_zi.png","b4_zi.png","b5_zi.png"],
@@ -85,7 +89,9 @@ var thisBlockNum = 0;
 var totalTrials = 24
 
 // timing variables
-var presTime = 2000;
+var sceneObjTime = 500;
+var maskTime = 500;
+var extraTime = 1000;
 
 // accuracy variables
 var prevAcc = 1;
@@ -106,7 +112,7 @@ $(document).ready(function(){
 	$("#startingInstructions").append( //have to append here instead of setting in html because variables are included
 		"<p>Thank you for your participation in this experiment. Please read the instructions very carefully.</p>"
 		+ "<p>You will be seeing different objects on top of different scenes. Your task is to indicate whether the object belongs in the scene. For example, if you saw a shirt on top of a scene of a closet, you would indicate that the shirt belongs to the scene.</p>"
-		+ "<b>If the object belongs to the scene, press the \"c\" key on your keyboard. If the object does not belong to the scene, press the \"m\" key on your keyboard.</b>"
+		+ "<b>If the object belongs to the scene, press the \"c\" key on your keyboard. If the object does not belong to the scene, press the \"m\" key on your keyboard. You can respond while the object and scene are on the screen, while a brief colored image is on the screen, or while the fixation cross is green</b> ("+"<font color=green>+</font>"+")."
 		+ "<p> Please respond as quickly and accurately as possible. </p>"
 		+ "<p>When you answer incorrectly, the fixation cross will turn red ("+"<font color=red>+</font>"+"). Try to slow down if you see you are getting many wrong!</p>"
 		+ "<br><p>When you are ready to begin the practice section, click the button below.</p>");
@@ -134,6 +140,11 @@ function preloadStimuli(){
 			}
 		}
 	}
+
+	for (var masks=0; masks<maskArray.length; masks++){
+		var thisMask = maskArray[masks]
+		img.src = "masks/" + thisMask;
+		}
 }
 
 function showInstructions(){
@@ -149,6 +160,10 @@ function showInstructions(){
 		$("#practiceWrongInstructions").append(
 			"<p>You didn't do well enough on the practice section. Try again, and once you have shown an understanding of the task, the experiment will begin.</p><br>"
 			+ "<p>Please read the instructions very carefully.</p>"
+			+ "<p>You will be seeing different objects on top of different scenes. Your task is to indicate whether the object belongs in the scene. For example, if you saw a shirt on top of a scene of a closet, you would indicate that the shirt belongs to the scene.</p>"
+			+ "<b>If the object belongs to the scene, press the \"c\" key on your keyboard. If the object does not belong to the scene, press the \"m\" key on your keyboard. You can respond while the object and scene are on the screen, while a brief colored image is on the screen, or while the fixation cross is green</b> ("+"<font color=green>+</font>"+")."
+			+ "<p> Please respond as quickly and accurately as possible. </p>"
+			+ "<p>When you answer incorrectly, the fixation cross will turn red ("+"<font color=red>+</font>"+"). Try to slow down if you see you are getting many wrong!</p><br>"
 			+ "<br><p>You will begin with a short practice. Once you have shown an understanding of the task, the experiment will begin.</p>")
 		$("#practiceWrongInstructions").show();
 		$("#redoPracticeButton").show();
@@ -232,6 +247,10 @@ function prepareForPracticeTrial(){
 		
 	}
 
+	var thisTrialMaskInd = getRandomInt(23);
+	var thisTrialMask = maskArray[thisTrialMaskInd];
+	$("#maskImage").attr("src","masks/" + thisTrialMask);
+
 	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
 	key = "none"; //"resetting" key press from previous trial, doesn't change if no button is pressed
 }
@@ -240,8 +259,9 @@ function prepareForTrial(){
 	// get trial info, including category, condition, objects, and target
 
 	[sceneCat, zoom, match] = getConds();
-	thisTrialScene = chooseSetScene(sceneCat, zoom);
+	var thisTrialScene = chooseSetScene(sceneCat, zoom);
 	var thisTrialObj = chooseSetObject(sceneCat,match);
+	var thisTrialMask = chooseSetMask();
 
 	fixTime = showFixation(prevAcc); //show fixation based on previous accuracy
 	key = "none"; //"resetting" key press from previous trial, doesn't change if no button is pressed
@@ -320,6 +340,14 @@ function chooseSetObject(sceneCat,match){
 		return thisTrialObj;
 	}
 }
+
+function chooseSetMask()
+{
+	var theseTrialMasks = shuffle(maskArray);
+	var thisTrialMask = maskArray.pop();
+	$("#maskImage").attr("src","masks/" + thisTrialMask);
+}
+
 // ----------------------
 // presentation functions
 // ----------------------
@@ -346,7 +374,7 @@ function showSceneObject(){
 	startTrialTime = new Date; 
 
 	// if (prevAcc==0){
-		$(".fixationDiv").hide();
+	$(".fixationDiv").hide();
 		// $("#fixationNeutral").show();
 	// }
 	$(document).ready(function(){
@@ -356,11 +384,27 @@ function showSceneObject(){
 	})
 }
 
-function hideSceneObject(){
+function showMask(){
 	// hide everything except experiment box, at end of each trial
 
 	$("#experimentBox").children().hide();
+	$(".maskDiv").show();
 }
+
+function hideMask(){
+	$(".maskDiv").hide();
+	$("#fixationGreen").show();
+}
+
+function hideAll(){
+	$("#experimentBox").children().hide();
+}
+
+// function hideSceneObject(){
+// 	// hide everything except experiment box, at end of each trial
+
+// 	$("#experimentBox").children().hide();
+// }
 
 
 // --------------------
@@ -381,67 +425,123 @@ function startBlock(thisBlockNum) {
 	}
 }
 
-function startExp() {
-	// start running one block, onkeypress for button div
+// function startExp() {
+// 	// start running one block, onkeypress for button div
 
-	prepareForFirstTrial(); //get rid of instructions page and show experiment box
-	runTrial(); //starts trial presentation, recursive function
-}
+// 	prepareForFirstTrial(); //get rid of instructions page and show experiment box
+// 	runTrial(); //starts trial presentation, recursive function
+// }
 
 function runTrial(){
  	// run one trial --> recursive function (calls itself inside itself until some condition is met)
 
+ 	var stimShown;
+
 	 if (thisBlockNum == 0){
 		prepareForPracticeTrial();
 		// set timeouts for presentation
-		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
-			showSceneObject();
-			detectKeyPress(trialOver);
-		}, fixTime);
-		var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
-			nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
-		}, fixTime + presTime);
-
+		// var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
+		// 	showSceneObject();
+		// 	detectKeyPress(trialOver);
+		// }, fixTime);
+		// var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+		// 	nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		// }, fixTime + presTime);
 	}
 
 	else{
 		prepareForTrial(); // get trial info, including category, condition, objects, and target, and set stimuli
 
-		// set timeouts for presentation
-		var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
-			showSceneObject();
-			detectKeyPress(trialOver);
-		}, fixTime);
-		var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
-			nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
-		}, fixTime + presTime);
-
+		// // set timeouts for presentation
+		// var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
+		// 	showSceneObject();
+		// 	detectKeyPress(trialOver);
+		// }, fixTime);
+		// var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+		// 	nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		// }, fixTime + presTime);
 	}
+	// detectKeyPress(trialOver); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+	var sceneObjShown = setTimeout(function(){ //show objects after fixation time (400 or 800ms)
+		showSceneObject();
+		// detectKeyPress(0,trialOver); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		stimShown = 0;
+		detectKeyPress(stimShown, maskShown, fixationShown, trialOver);
+	}, fixTime);
+	var maskShown = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+		showMask();
+		// detectKeyPress(1,trialOver); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		stimShown = 1;
+	}, fixTime + sceneObjTime);
+	var fixationShown = setTimeout(function(){ //hide all stimuli and gabors after fixation time + object time + gabor timeout (2s)
+		hideMask();
+		// detectKeyPress(2, trialOver); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+		stimShown = 2;
+	}, fixTime + sceneObjTime + maskTime)
+	var trialOver = setTimeout(function(){ //show gabors after fixation time + object time (4s)
+		nextTrial(); //set keypress event listener, which times out end-of-trial timer if a valid key is pressed
+	}, fixTime + sceneObjTime + maskTime + extraTime);
+	// detectKeyPress(stimShown, trialOver)
 }
 
-function detectKeyPress(trialOver){
+function detectKeyPress(stimShown, maskShown, fixationShown, trialOver){
 	// see if key is pressed to end trial early
 
 	// add event listener for keypress
 	$(document).bind("keypress", function(event){
 		if (event.which == 99){ //99 is js keycode for c
 			key = "c";
-			nextTrial(); //since button was pressed, move onto next trial
+			// nextTrial(); //since button was pressed, move onto next trial
 			clearTimeout(trialOver); //get rid of end-of-trial timer
+			if (stimShown == 0){
+				clearTimeout(maskShown);
+				clearTimeout(fixationShown);
+			}
+			if (stimShown == 1){
+				clearTimeout(fixationShown)
+			}
+			nextTrial(); //since button was pressed, move onto next trial
 		}
 		else if (event.which == 109){ //109 is js keycode for m
 			key = "m";
-			nextTrial(); //since button was pressed, move onto next trial
+			// nextTrial(); //since button was pressed, move onto next trial
 			clearTimeout(trialOver); //get rid of end-of-trial timer
+			if (stimShown == 0){
+				clearTimeout(maskShown);
+				clearTimeout(fixationShown);
+			}
+			if (stimShown == 1){
+				clearTimeout(fixationShown)
+			}
+			nextTrial(); //since button was pressed, move onto next trial
 		}
+		// nextTrial(); //since button was pressed, move onto next trial
+		// clearTimeout(trialOver); //get rid of end-of-trial timer
+		// if (stimShown == 0){
+		// 	clearTimeout(maskShown);
+		// 	clearTimeout(fixationShown);
+		// }
+		// if (stimShown == 1){
+		// 	clearTimeout(fixationShown)
+		// }
+		// nextTrial(); //since button was pressed, move onto next trial
 	});
+	// clearTimeout(trialOver); //get rid of end-of-trial timer
+	// if (stimShown == 0){
+	// 	clearTimeout(maskShown);
+	// 	clearTimeout(fixationShown);
+	// }
+	// if (stimShown == 1){
+	// 	clearTimeout(fixationShown)
+	// }
+	// nextTrial(); //since button was pressed, move onto next trial
 }
 
 function nextTrial(){ //requires input variable because it is not a global variable --> different for practice and experiment blocks
 	// advance to next trial OR end block
 
 	$(document).unbind("keypress"); //assuming there has already been a keypress, remove event so it can be added for next trial
-	hideSceneObject();
+	hideAll();
 
 	// save accuracy for this trial and update number correct for block accuracy
 	if (keyDict[key] == match){
@@ -511,7 +611,7 @@ function saveTrialData(){
 	// global variables --> will be repetitive, same value for every row (each row will represent one trial)
 	thisData["subjID"].push(subjID);
 	thisData["experimentName"].push("OSS");
-	thisData["versionName"].push("v1");
+	thisData["versionName"].push("v2");
 	thisData["windowWidth"].push($(window).width());
 	thisData["windowHeight"].push($(window).height());
 	thisData["screenWidth"].push(screen.width);
