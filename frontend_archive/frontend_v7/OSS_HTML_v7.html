@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<link rel="stylesheet" href="OSS_CSS_v7.css">
+		<script src="OSS_JS_v7.js"></script>
+	</head>
+
+	<body>
+		<!-- This calls the php function, and on submit, the page refreshes (unless otherwise specified in php) -->
+		<form name="saveData" id="saveData" action="saveFile.php" method="post">
+			<!-- Any variables you want to pass to the php have to be here -->
+			<input type="hidden" name="experimentData" id="experimentData"> <!-- this value should be your data array after JSON.stringify(data)  -->
+			<input type="hidden" name="subjID" id="subjID" value="test">
+			<input type="hidden" name="startTime" id="startTime" value="test">
+			<input type="hidden" name="startDate" id="startDate" value="test">
+			<input type="hidden" name="completedTrialsNum" id="completedTrialsNum" value=0>
+		</form>
+		
+		<!-- instructions -->
+		<div id="startingInstructions" class="instructions">
+			<p>Thank you for your interest in this <strong>Human Intelligence Task (HIT)</strong>. Please read the instructions very carefully</p>
+			<p>In this task you will see different objects on top of different scenes. On each trial you will a fixation cross followed by a scene with an object placed in the center. This image will appear for a brief amount of time, followed by an image of colored squares. Once this image disappears you will see another scene. </p>
+			<p>Your task is to respond <strong>'Do the two scenes belong to the same category?'</strong></p>
+			<p> In the experiment, scenes will be from one of four categories: kitchen, bathroom, classroom, or laundromat (see examples below).Your task is to respond if the two scenes belong to the same or different category from this list. </p>
+			<p> For the practice, scenes will either be indoor or outdoor. </p>
+			<p>If you believe the two scenes are of the same category, press the 'c' key on your keyboard. If the scenes are of different categories, then press the 'm' key on your keyboard.</p>
+			<p>For example, if you see two bedroom scenes then you should respond 'c'. If the first scene is a bedroom, and the second is living room then you should respond 'm'.</p>
+			<p>Please respond as quickly and accurately as possible. When you answer incorrectly, the fixation cross will turn red (<font color=red>+</font>). Try to slow down if you see you are getting many wrong!</p>
+			<br><p>When you are ready to begin the practice section, click the button below.</p>
+
+			<img src="scenes_instructions.png" style="width:830px;height:650px;"/>
+
+		</div>
+		<div id="practiceWrongInstructions" class="instructions">
+		</div>
+		<div id="firstBlockInstructions" class="instructions">
+		</div>
+		<div id="lastBlockInstructions" class="instructions">
+		</div>
+		<div id="endExpInstructions" class="instructions">
+		</div>
+
+		<!-- buttons -->
+		<div id="startPracticeButton" class="buttonDiv">
+			<a href="#" id="startPracticeText" onclick="startBlock(thisBlockNum)">Start Practice</a>
+		</div>
+		<div id="redoPracticeButton" class="buttonDiv">
+			<a href="#" id="redoPracticeText" onclick="startBlock(thisBlockNum)">Redo Practice</a>
+		</div>
+		<div id="startExperimentButton" class="buttonDiv">
+			<a href="#" id="startExperimentText" onclick="startBlock(thisBlockNum)">Start Experiment</a>
+		</div>
+		<div id="revealCodeButton" class="buttonDiv">
+			<a href="#" id="revealCodeText" type onclick="endExperiment()">Reveal Code</a>
+		</div>
+
+		<!-- div to preload all images so they're not glitchy -->
+		<div id="preload" class="preload">
+		</div>
+
+		<div id="age" class="ageDiv">
+			<h1> What term best expresses how you describe your gender identity? </h1>
+			<p>Note: we are asking about gender in order to understand how your responses may differ based on different demographic characteristics. Specifically in this case, we are referring to your gender identity.</p>
+
+
+			<html>
+
+			<script>
+			function getGender() {
+			var mylist = document.getElementById("myList");
+			document.getElementById("gender").value = mylist.options[mylist.selectedIndex].text;
+			var genderResponse = mylist.options[mylist.selectedIndex].text;
+
+			}
+			</script>
+
+			<body>
+			<form>
+			<b> Select a term: </b>
+			<select id = "myList" onchange = "getGender()">
+			<option> ---Choose a term--- </option>
+			<option> Man </option>
+			<option> Woman </option>
+			<option> Non-binary </option>
+			<option> Transgender </option>
+			<option>None of these describe me</option>
+			<option>Prefer not to answer</option>
+			</select>
+			<p> Your selected term is: </p>
+			<input type = "text" id = "gender" size = "20">
+			</form>
+			</body>
+			</html>
+
+
+
+			<h1> Please report your age in years below. </h1>
+			<input id="age_numb" autocomplete="off" onfocus="this.value=''" value="" autofocus/>
+
+			<button type="button" onfocus="this.value=''" value="" onclick="age_validateForm();">Submit</button>
+			<p id="_feedback"></p>
+			<script>
+			$("age_numb").focus();
+			var x_age = document.getElementById("age_numb").autofocus; // checks that cursor is in the form field automatically 
+			// console.log(x, "is it autofocused?")
+			
+			var input_age = document.getElementById("age_numb");
+			input_age.addEventListener("keyup", function(event) { // allows participant to press enter 
+			  if (event.keyCode === 13) {
+			   age_validateForm();
+			  }
+			});
+			</script>
+
+			<script>
+				
+			function age_validateForm() { // validates trial depth response 
+			  var age_response, _text;
+
+			 // Get the value of the input_age field with id="age_numb"
+			 age_response = document.getElementById("age_numb").value;
+
+
+			  // If x is not a Number, less than zero, or no response was given
+			  if (isNaN(age_response) || age_response < 0 || age_response.length == 0) {
+			    _text = "Please enter a valid number";
+			  } 
+			  else {
+			  	// getAQ();
+			  	lastInstructions();
+
+			  	_text=" "
+
+			  }
+			  document.getElementById("_feedback").innerHTML = _text;
+			}
+			</script>
+		</div>
+
+
+		<!-- experiment box -->
+		<div id="experimentBox">
+			<!-- stimuli -->
+			<div id="scene1" class="scene1Div">
+				<img id="scene1Image" src="" width=900>
+			</div>
+			<div id = "circle" class="circleDiv">
+				<img id="circleImage" src="circle.png" width=250>
+			</div>
+			<div id="object" class="objectDiv">
+				<img id="objectImage" src="" width=150>
+			</div>
+			<div id="mask" class="maskDiv">
+				<img id="maskImage" src="" width=900>
+			</div>
+			<div id="scene2" class="scene2Div">
+				<img id="scene2Image" src="" width=900>
+			</div>
+
+			<!-- fixations -->
+			<div id="fixationNeutral" class="fixationDiv">
+				<img src="fixations/Fixation.png" width=20>
+			</div>
+			<div id="fixationRed" class="fixationDiv">
+				<img src="fixations/WrongFixation.png" width=20>
+			</div>
+			<div id="fixationGreen" class="fixationDiv">
+				<img src="fixations/GoFixation.png" width=20>
+			</div>
+		</div>
+	</body>
+</html> 
